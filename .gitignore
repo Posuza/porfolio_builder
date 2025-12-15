@@ -18,6 +18,16 @@
 .env.test.local
 .env.production.local
 
+# sensitive files (avoid committing credentials)
+.env
+.env.*
+*.key
+*.pem
+*.crt
+*.p12
+secrets.json
+credentials.json
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
