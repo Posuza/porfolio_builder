@@ -7,7 +7,7 @@ interface DraggableItemProps {
 }
 
 export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }) => {
-  const { selectComponent, selectedComponent, deleteComponent, moveComponent, reorderComponents } = usePortfolioStore();
+  const { selectComponent, selectedComponent, deleteComponent, reorderComponents } = usePortfolioStore();
   const dragRef = useRef<HTMLDivElement>(null);
   const isSelected = selectedComponent === component.id;
 

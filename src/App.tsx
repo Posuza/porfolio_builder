@@ -80,20 +80,9 @@ function App() {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh', 
-      fontFamily: 'Arial, sans-serif',
-      backgroundColor: '#f5f5f5'
-    }}>
-        {/* Left Sidebar - Component Palette */}
-        <div style={{ 
-          width: '280px', 
-          padding: '12px', 
-          backgroundColor: 'white',
-          borderRight: '1px solid #ddd',
-          overflowY: 'auto'
-        }}>
+    <div className="flex h-screen font-sans bg-gray-100">
+      {/* Left Sidebar - Component Palette */}
+      <div className="w-72 p-3 bg-white border-r overflow-y-auto">
           <div style={{ marginBottom: '20px' }}>
             <h2 style={{ margin: '0 0 16px 0', color: '#333' }}>🎨 Portfolio Builder</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -155,28 +144,18 @@ function App() {
           <ThemeManager />
           <ComponentPalette />
           <AdvancedControls />
-        </div>
-
-        {/* Main Canvas Area */}
-        <div style={{ 
-          flex: 1, 
-          padding: '16px',
-          overflow: 'auto'
-        }}>
-          <Canvas />
-        </div>
-
-        {/* Right Sidebar - Properties Panel */}
-        <div style={{ 
-          width: '300px', 
-          padding: '16px', 
-          backgroundColor: 'white',
-          borderLeft: '1px solid #ddd',
-          overflowY: 'auto'
-        }}>
-          <PropertyPanel />
-        </div>
       </div>
+
+      {/* Main Canvas Area */}
+      <div className="flex-1 p-4 overflow-auto">
+        <Canvas />
+      </div>
+
+      {/* Right Sidebar - Properties Panel */}
+      <div className="w-72 p-4 bg-white border-l overflow-y-auto">
+        <PropertyPanel />
+      </div>
+    </div>
   );
 }
 
