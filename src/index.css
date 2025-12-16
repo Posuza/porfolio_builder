@@ -1,0 +1,15 @@
+/* Tailwind entry file — replace this with Tailwind if you install the PostCSS setup.
+   Install locally with:
+
+     yarn add -D tailwindcss postcss autoprefixer
+     npx tailwindcss init -p
+
+   Then this file provides Tailwind's base, components and utilities.
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add project-level custom CSS below as needed. */
+/* index.css intentionally left blank — using Tailwind via styles/index.css */

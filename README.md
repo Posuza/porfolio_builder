@@ -73,6 +73,14 @@ yarn add -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
+After installing, ensure `postcss.config.js` and `tailwind.config.js` are created, and replace `src/index.css` with the Tailwind directives (this file already contains the directives; installing the deps is required for them to be processed):
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
 3. Run dev server:
 
 ```bash
