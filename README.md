@@ -1,46 +1,100 @@
-# Getting Started with Create React App
+# Portfolio Builder
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A small React + TypeScript portfolio builder (CRA) with an editor (studio) and public preview pages.
 
-## Available Scripts
+## Overview
+- Editor (studio): build pages with drag-and-drop components, manage layouts and themes.
+- Public pages: rendered previews of saved pages at `/pages/:slug`.
+- State: Zustand slices for pages, components and layouts.
+- Components: two folders — `src/components/engine/` (editor engine copies) and `src/components/project/` (project-specific components).
 
-In the project directory, you can run:
+## Project structure (key files)
+- `src/App.tsx` — app entry that renders the router.
+- `src/router.tsx` — routes (editor under `/studio`, public pages under `/pages/:slug`).
+- `src/pages/` — `builderPage`, `previewPage`, `PublicPage`.
+- `src/components/engine/` — editor UI (Canvas, Palette, PropertyPanel, etc.).
+- `src/components/project/` — your project components (can be used to replace engine copies).
+- `src/store/` — Zustand store slices: `pageSlice`, `componentSlice`, `layoutSlice`.
 
-### `yarn start`
+## Getting started (local)
+1. Install dependencies:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+yarn install
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. (Optional) Install Tailwind deps if you want Tailwind utilities to work:
 
-### `yarn test`
+```bash
+yarn add -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Run dev server:
 
-### `yarn build`
+```bash
+yarn start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+4. Build for production:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+yarn build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Notes and next steps
+- The repository currently uses `components/engine/*` for the editor. If you prefer the original project components, I can switch imports to `components/project/*` or add a runtime toggle to choose between them.
+- Some TypeScript/react-dnd ref casts are pragmatic to get the editor working; these can be tightened later.
+- Run `yarn build` locally to surface any remaining TypeScript / ESLint issues.
 
-### `yarn eject`
+## Contact / Contributing
+- Edit files in `src/` and open a PR. If you want, I can implement the project-component revert or add the runtime toggle next.
+yarn build
+# Portfolio Builder — concise
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+Simple CRA + TypeScript portfolio builder with an editor (studio) and public previews.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Quick summary
+- Editor: drag & drop components, manage pages, layouts and themes.
+- Public preview: view published pages at /pages/:slug.
+- State: Zustand slices under `src/store`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Quick start
+1. Install dependencies:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```bash
+yarn install
+```
 
-## Learn More
+2. (Optional) If you want Tailwind utilities to be available:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+yarn add -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3. Run dev server:
+
+```bash
+yarn start
+```
+
+Main files
+- `src/router.tsx` — routing for editor and public pages.
+- `src/pages/` — editor and preview page components.
+- `src/components/engine/` — editor (engine) components.
+- `src/components/project/` — place for project-specific component implementations.
+- `src/store/` — Zustand slices: `pageSlice`, `componentSlice`, `layoutSlice`.
+
+Developer notes
+- The editor currently imports `components/engine/*`. I can switch these back to `components/project/*` or add a runtime toggle.
+- Some quick type casts are used for react-dnd refs; these can be tightened later.
+- Run `yarn build` locally to surface any remaining TypeScript or ESLint issues.
+
+Next steps you can ask me to do
+- Revert builder imports to `components/project/*`.
+- Add a runtime/dev toggle to pick engine vs project components.
+- Tighten TypeScript types around react-dnd usage.
+
+License & contributions
+- Edit files in `src/` and open a PR. Ask me to implement the next step you prefer.

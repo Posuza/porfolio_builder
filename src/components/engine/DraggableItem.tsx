@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { Component, usePortfolioStore } from '../store/store';
+import { usePortfolioStore } from '../../store/store';
 
 interface DraggableItemProps {
-  component: Component;
+  component: any;
   index: number;
 }
 
@@ -23,7 +23,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
     e.preventDefault();
     const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
     if (dragIndex !== index) {
-      // reorder by index (uses componentSlice.reorderComponents)
       reorderComponents(dragIndex, index);
     }
   };
@@ -42,10 +41,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
         return <div style={component.styles}>{component.content}</div>;
       case 'card':
         return <div style={{...component.styles, border: '1px solid #ddd', borderRadius: '8px', padding: '16px'}}>{component.content}</div>;
-      case 'list':
-        return <ul style={component.styles}>{component.content.split('\n').map((item: string, i: number) => <li key={i}>{item}</li>)}</ul>;
-      case 'quote':
-        return <blockquote style={{...component.styles, borderLeft: '4px solid #007bff', paddingLeft: '16px', fontStyle: 'italic'}}>{component.content}</blockquote>;
       case 'divider':
         return <hr style={{...component.styles, border: 'none', borderTop: '2px solid #ddd', margin: '20px 0'}} />;
       default:
@@ -61,15 +56,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={() => selectComponent(component.id)}
-      style={{
-        cursor: 'move',
-        border: isSelected ? '2px solid #007bff' : '1px solid #ddd',
-        margin: '8px',
-        padding: '8px',
-        borderRadius: '4px',
-        position: 'relative',
-        backgroundColor: isSelected ? '#f8f9fa' : 'white',
-      }}
+      className={`cursor-move m-2 p-2 rounded ${isSelected ? 'border-2 border-blue-500 bg-gray-100' : 'border border-gray-200 bg-white'}`}
     >
       {renderContent()}
       {isSelected && (
@@ -78,19 +65,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
             e.stopPropagation();
             deleteComponent(component.id);
           }}
-          style={{
-            position: 'absolute',
-            top: '-8px',
-            right: '-8px',
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '20px',
-            height: '20px',
-            fontSize: '12px',
-            cursor: 'pointer',
-          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
         >
           ×
         </button>
@@ -98,3 +73,5 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
     </div>
   );
 };
+
+export default DraggableItem;

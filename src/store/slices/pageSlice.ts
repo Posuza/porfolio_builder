@@ -6,12 +6,13 @@ export interface Page {
   slug: string;
   isActive: boolean;
   createdAt: string;
+  layoutId?: string;
 }
 
 export interface PageSlice {
   pages: Page[];
   currentPageId: string | null;
-  addPage: (name: string) => void;
+  addPage: (name: string, layoutId?: string) => void;
   deletePage: (id: string) => void;
   setCurrentPage: (id: string) => void;
   updatePage: (id: string, updates: Partial<Page>) => void;
@@ -26,17 +27,19 @@ export const createPageSlice: StateCreator<PageSlice> = (set, get) => ({
       slug: 'home',
       isActive: true,
       createdAt: new Date().toISOString(),
+      layoutId: 'default',
     }
   ],
   currentPageId: 'default',
   
-  addPage: (name) => {
+  addPage: (name, layoutId) => {
     const newPage: Page = {
       id: Date.now().toString(),
       name,
       slug: name.toLowerCase().replace(/\s+/g, '-'),
       isActive: true,
       createdAt: new Date().toISOString(),
+      layoutId: layoutId || (get() as any).currentLayoutId || undefined,
     };
     set((state) => ({
       pages: [...state.pages, newPage],
@@ -85,8 +88,14 @@ export const createPageSlice: StateCreator<PageSlice> = (set, get) => ({
   setCurrentPage: (id) => {
     set({ currentPageId: id });
 
-    // If the target page has no components, auto-load a small sample set.
+    // If the page defines a layoutId, apply it to the current layout
     const store = get() as any;
+    const page = (get() as any).pages.find((p: Page) => p.id === id);
+    if (page && page.layoutId && typeof store.setCurrentLayout === 'function') {
+      store.setCurrentLayout(page.layoutId);
+    }
+
+    // If the target page has no components, auto-load a small sample set.
     if (typeof store.getComponentsByPage === 'function' && typeof store.addComponent === 'function') {
       const comps = store.getComponentsByPage(id);
       if (!comps || comps.length === 0) {
@@ -96,13 +105,6 @@ export const createPageSlice: StateCreator<PageSlice> = (set, get) => ({
             content: 'Page title',
             styles: { color: '#111', fontSize: '24px', textAlign: 'center', padding: '12px' },
             position: { x: 0, y: 0 },
-            pageId: id,
-          },
-          {
-            type: 'text',
-            content: 'Add your content here.',
-            styles: { color: '#333', fontSize: '16px', padding: '12px', textAlign: 'left' },
-            position: { x: 0, y: 64 },
             pageId: id,
           },
         ];

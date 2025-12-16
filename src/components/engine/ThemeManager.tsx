@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePortfolioStore } from '../store/store';
+import { usePortfolioStore } from '../../store/store';
 
 export const ThemeManager: React.FC = () => {
   const { getCurrentLayout, updateLayout, currentLayoutId } = usePortfolioStore();
@@ -25,27 +25,16 @@ export const ThemeManager: React.FC = () => {
    };
 
   return (
-    <div style={{ padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px', marginBottom: '16px' }}>
-      <h3 style={{ margin: '0 0 12px 0', color: '#333' }}>Themes</h3>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+    <div className="p-4 bg-gray-100 rounded-md mb-4">
+      <h3 className="mb-3 text-gray-800">Themes</h3>
+
+      <div className="grid grid-cols-2 gap-2">
         {themes.map((theme) => (
           <button
             key={theme.name}
             onClick={() => applyTheme(theme)}
-            style={{
-              padding: '8px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              backgroundColor: theme.bg,
-              color: theme.text,
-              cursor: 'pointer',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '40px',
-            }}
+            className="p-2 border rounded text-sm flex items-center justify-center min-h-[40px]"
+            style={{ backgroundColor: theme.bg, color: theme.text }}
           >
             {theme.name}
           </button>
@@ -54,3 +43,5 @@ export const ThemeManager: React.FC = () => {
     </div>
   );
 };
+
+export default ThemeManager;

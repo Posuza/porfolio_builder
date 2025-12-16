@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { Component, usePortfolioStore } from '../store/store';
+import { usePortfolioStore } from '../../store/store';
 
 interface DraggableComponentProps {
-  component: Component;
+  component: any;
   index: number;
 }
 
@@ -32,12 +32,6 @@ export const DraggableComponent: React.FC<DraggableComponentProps> = ({ componen
         return <button style={component.styles}>{component.content}</button>;
       case 'section':
         return <div style={component.styles}>{component.content}</div>;
-      case 'card':
-        return <div style={{...component.styles, border: '1px solid #ddd', borderRadius: '8px', padding: '16px'}}>{component.content}</div>;
-      case 'list':
-        return <ul style={component.styles}>{component.content.split('\n').map((item, i) => <li key={i}>{item}</li>)}</ul>;
-      case 'quote':
-        return <blockquote style={{...component.styles, borderLeft: '4px solid #007bff', paddingLeft: '16px', fontStyle: 'italic'}}>{component.content}</blockquote>;
       case 'divider':
         return <hr style={{...component.styles, border: 'none', borderTop: '2px solid #ddd', margin: '20px 0'}} />;
       default:
@@ -50,16 +44,7 @@ export const DraggableComponent: React.FC<DraggableComponentProps> = ({ componen
       // cast to any to satisfy strict ref type expected by React + react-dnd v15
       ref={drag as any}
       onClick={() => selectComponent(component.id)}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: 'move',
-        border: isSelected ? '2px solid #007bff' : '1px solid #ddd',
-        margin: '8px',
-        padding: '8px',
-        borderRadius: '4px',
-        position: 'relative',
-        backgroundColor: isSelected ? '#f8f9fa' : 'white',
-      }}
+      className={`${isDragging ? 'opacity-50' : 'opacity-100'} cursor-move m-2 p-2 rounded ${isSelected ? 'border-2 border-blue-500 bg-gray-100' : 'border border-gray-200 bg-white'}`}
     >
       {renderContent()}
       {isSelected && (
@@ -68,19 +53,7 @@ export const DraggableComponent: React.FC<DraggableComponentProps> = ({ componen
             e.stopPropagation();
             deleteComponent(component.id);
           }}
-          style={{
-            position: 'absolute',
-            top: '-8px',
-            right: '-8px',
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '20px',
-            height: '20px',
-            fontSize: '12px',
-            cursor: 'pointer',
-          }}
+          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
         >
           ×
         </button>
@@ -88,3 +61,5 @@ export const DraggableComponent: React.FC<DraggableComponentProps> = ({ componen
     </div>
   );
 };
+
+export default DraggableComponent;
