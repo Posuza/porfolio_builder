@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { usePortfolioStore } from '../../store/store';
 
 export const AdvancedControls: React.FC = () => {
   const { components } = usePortfolioStore();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showExportOptions, setShowExportOptions] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const exportAsHTML = () => {
