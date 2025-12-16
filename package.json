@@ -47,7 +47,6 @@
     ]
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.7.0",
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
