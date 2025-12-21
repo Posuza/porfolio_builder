@@ -3,12 +3,16 @@ import { StateCreator } from 'zustand';
 export interface Layout {
   id: string;
   name: string;
-  template: 'single-column' | 'two-column' | 'three-column' | 'grid';
+  // allow flexible template keys (including legacy/alternate names)
+  template: string;
   settings: {
     maxWidth?: string;
     padding?: string;
     backgroundColor?: string;
     gap?: string;
+    surfaceColor?: string;
+    textColor?: string;
+    accentColor?: string;
   };
 }
 
@@ -45,6 +49,7 @@ export const createLayoutSlice: StateCreator<LayoutSlice> = (set, get) => ({
     };
     set((state) => ({
       layouts: [...state.layouts, newLayout],
+      currentLayoutId: newLayout.id,
     }));
   },
   

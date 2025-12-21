@@ -8,6 +8,11 @@ interface DraggableItemProps {
 
 export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }) => {
   const { selectComponent, selectedComponent, deleteComponent, reorderComponents } = usePortfolioStore();
+  const { getCurrentLayout } = usePortfolioStore();
+  const layout = getCurrentLayout?.();
+  const accent = layout?.settings?.accentColor || '#3b82f6';
+  const surface = layout?.settings?.surfaceColor || '#ffffff';
+  const text = layout?.settings?.textColor || '#111827';
   const dragRef = useRef<HTMLDivElement>(null);
   const isSelected = selectedComponent === component.id;
 
@@ -39,6 +44,8 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
         return <button style={component.styles}>{component.content}</button>;
       case 'section':
         return <div style={component.styles}>{component.content}</div>;
+      case 'layout':
+        return <div style={{ ...component.styles, backgroundColor: component.styles?.backgroundColor || 'transparent' }}>{component.content}</div>;
       case 'card':
         return <div style={{...component.styles, border: '1px solid #ddd', borderRadius: '8px', padding: '16px'}}>{component.content}</div>;
       case 'divider':
@@ -55,8 +62,9 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
-      onClick={() => selectComponent(component.id)}
-      className={`cursor-move m-2 p-2 rounded ${isSelected ? 'border-2 border-blue-500 bg-gray-100' : 'border border-gray-200 bg-white'}`}
+      onClick={(e) => { e.stopPropagation(); selectComponent(component.id); }}
+      style={{ background: isSelected ? surface : '#fff', border: `1px solid ${isSelected ? accent : '#e5e7eb'}`, color: text }}
+      className={`cursor-move m-2 p-2 rounded relative`}
     >
       {renderContent()}
       {isSelected && (
@@ -65,7 +73,8 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({ component, index }
             e.stopPropagation();
             deleteComponent(component.id);
           }}
-          className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-5 h-5 text-xs"
+          style={{ background: accent, color: '#fff' }}
+          className="absolute -top-2 -right-2 rounded-full w-5 h-5 text-xs flex items-center justify-center"
         >
           ×
         </button>

@@ -70,7 +70,12 @@ export const PageManager: React.FC = () => {
           <button onClick={() => setShowAddForm(false)} className="px-3 py-1 bg-gray-600 text-white rounded text-sm">Cancel</button>
         </div>
       ) : (
-        <button onClick={() => setShowAddForm(true)} className="px-3 py-1 bg-blue-600 text-white rounded text-sm">+ Add Page</button>
+        <button onClick={() => setShowAddForm(true)} className="px-3 py-1 bg-blue-600 text-white rounded text-sm flex items-center gap-2">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Add Page
+        </button>
       )}
     </div>
   );

@@ -15,7 +15,7 @@ export const PreviewMode: React.FC = () => {
 
   return (
     <div style={containerStyle} className="mx-auto">
-        {components.map((component) => {
+        {components.filter((c:any)=>c.type!=='layout').map((component) => {
           const renderComponent = () => {
             switch (component.type) {
               case 'header':
@@ -39,13 +39,13 @@ export const PreviewMode: React.FC = () => {
               case 'section':
                 return <section style={component.styles}>{component.content}</section>;
               case 'card':
-                return <div style={{...component.styles, border: '1px solid #ddd', borderRadius: '8px', padding: '12px'}}>{component.content}</div>;
+                return <div style={{...component.styles, border: `1px solid ${layout?.settings?.accentColor || '#ddd'}`, borderRadius: '8px', padding: '12px'}}>{component.content}</div>;
               case 'list':
                 return <div style={component.styles}>{component.content}</div>;
               case 'quote':
                 return <blockquote style={component.styles}>{component.content}</blockquote>;
               case 'divider':
-                return <hr style={{...component.styles, border: 'none', borderTop: '2px solid #ddd', margin: '20px 0'}} />;
+                return <hr style={{...component.styles, border: 'none', borderTop: `2px solid ${layout?.settings?.accentColor || '#ddd'}`, margin: '20px 0'}} />;
               default:
                 return <div>{component.content}</div>;
             }

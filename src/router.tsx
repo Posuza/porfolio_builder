@@ -16,8 +16,10 @@ const AppRouter: React.FC = () => {
         <Route path="preview" element={<PreviewPage />} />
       </Route>
 
-      {/* Public project pages (separate from editor) */}
-      <Route path="/pages/:slug" element={<PublicPage />} />
+      {/* Public project pages (wrapped with Layout so header/footer show) */}
+      <Route path="/pages" element={<Layout />}>
+        <Route path=":slug" element={<PublicPage />} />
+      </Route>
 
       {/* Root redirect to editor studio */}
       <Route path="/" element={<Navigate to="/studio/builder" replace />} />

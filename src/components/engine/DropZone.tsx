@@ -20,12 +20,16 @@ export const DropZone: React.FC = () => {
   });
 
   // reordering handled via drag/drop handlers in DraggableComponent/DraggableItem
+  const { getCurrentLayout } = usePortfolioStore();
+  const layout = getCurrentLayout?.();
+  const accent = layout?.settings?.accentColor;
 
   return (
     <div
       // react-dnd connectors have incompatible Ref types with strict JSX refs — cast to any
       ref={drop as any}
-      className={`min-h-[400px] border-2 border-dashed rounded-lg p-4 transition-colors ${isOver ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-300'}`}
+      className={`min-h-[400px] border-2 border-dashed rounded-lg p-4 transition-colors ${isOver ? 'bg-blue-50' : 'bg-gray-50'}`}
+      style={{ borderColor: accent || undefined }}
     >
       <h3 className="text-center text-gray-600 mb-4">Portfolio Canvas</h3>
       {components.length === 0 ? (

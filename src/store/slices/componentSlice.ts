@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 
 export interface Component {
   id: string;
-  type: 'header' | 'text' | 'image' | 'button' | 'section' | 'card' | 'list' | 'quote' | 'divider';
+  type: 'header' | 'text' | 'image' | 'button' | 'section' | 'layout' | 'card' | 'list' | 'quote' | 'divider';
   content: string;
   styles: {
     backgroundColor?: string;
@@ -13,13 +13,18 @@ export interface Component {
     textAlign?: 'left' | 'center' | 'right';
   };
   position: { x: number; y: number };
+  parentId?: string;
+  // optional template identifier for layout-type components
+  template?: string;
+  // optional explicit icon key to force icon selection in UI
+  icon?: string;
   pageId: string;
 }
 
 export interface ComponentSlice {
   components: Component[];
   selectedComponent: string | null;
-  addComponent: (component: Omit<Component, 'id'>) => void;
+  addComponent: (component: Omit<Component, 'id'> & { id?: string }) => void;
   updateComponent: (id: string, updates: Partial<Component>) => void;
   deleteComponent: (id: string) => void;
   selectComponent: (id: string | null) => void;
@@ -35,8 +40,13 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   addComponent: (component) => {
     const newComponent: Component = {
       ...component,
-      id: Date.now().toString(),
+      id: (component as any).id || Date.now().toString(),
     };
+    // Debug: log layout creations to help trace drag/drop vs click flows
+    if (newComponent.type === 'layout') {
+      // eslint-disable-next-line no-console
+      console.info('[store] addComponent (layout):', JSON.parse(JSON.stringify(newComponent)));
+    }
     set((state) => ({
       components: [...state.components, newComponent],
     }));
@@ -51,10 +61,29 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   },
   
   deleteComponent: (id) => {
-    set((state) => ({
-      components: state.components.filter((comp) => comp.id !== id),
-      selectedComponent: state.selectedComponent === id ? null : state.selectedComponent,
-    }));
+    set((state) => {
+      // remove the target component and any descendants (by parentId) recursively
+      const toRemove = new Set<string>([id]);
+      let added = true;
+      while (added) {
+        added = false;
+        for (const comp of state.components) {
+          if (!comp) continue;
+          if (comp.parentId && toRemove.has(comp.parentId) && !toRemove.has(comp.id)) {
+            toRemove.add(comp.id);
+            added = true;
+          }
+        }
+      }
+
+      const newComponents = state.components.filter((comp) => !toRemove.has(comp.id));
+      const newSelected = toRemove.has(state.selectedComponent || '') ? null : state.selectedComponent;
+
+      return {
+        components: newComponents,
+        selectedComponent: newSelected,
+      };
+    });
   },
   
   selectComponent: (id) => {
@@ -71,14 +100,22 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   
   reorderComponents: (dragIndex, hoverIndex) => {
     const { components } = get();
+    // guard against invalid indices or missing dragged item
+    if (!Array.isArray(components)) return;
+    if (typeof dragIndex !== 'number' || typeof hoverIndex !== 'number') return;
+    if (dragIndex < 0 || dragIndex >= components.length) return;
     const draggedComponent = components[dragIndex];
+    if (!draggedComponent) return;
+
     const newComponents = [...components];
     newComponents.splice(dragIndex, 1);
-    newComponents.splice(hoverIndex, 0, draggedComponent);
+    // if hoverIndex is now out of bounds after removal, clamp it
+    const clampedIndex = Math.max(0, Math.min(hoverIndex, newComponents.length));
+    newComponents.splice(clampedIndex, 0, draggedComponent);
     set({ components: newComponents });
   },
 
   getComponentsByPage: (pageId) => {
-    return get().components.filter(comp => comp.pageId === pageId);
+    return get().components.filter(comp => comp && comp.pageId === pageId);
   },
 });

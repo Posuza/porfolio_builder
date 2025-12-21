@@ -23,6 +23,8 @@ export const ComponentItem: React.FC<ComponentItemProps> = ({ component }) => {
         return <button style={component.styles}>{component.content}</button>;
       case 'section':
         return <div style={component.styles}>{component.content}</div>;
+      case 'layout':
+        return <div style={{ ...component.styles, backgroundColor: component.styles?.backgroundColor || 'transparent' }}>{component.content}</div>;
       case 'divider':
         return <hr style={{...component.styles, border: 'none', borderTop: '2px solid #ddd', margin: '20px 0'}} />;
       default:
@@ -32,7 +34,7 @@ export const ComponentItem: React.FC<ComponentItemProps> = ({ component }) => {
 
   return (
     <div
-      onClick={() => selectComponent(component.id)}
+      onClick={(e) => { e.stopPropagation(); selectComponent(component.id); }}
       className={`cursor-pointer m-2 p-2 rounded ${isSelected ? 'border-2 border-blue-500 bg-gray-100' : 'border border-gray-200 bg-white'}`}
     >
       {renderContent()}
