@@ -16,6 +16,8 @@ export interface Component {
   parentId?: string;
   // optional template identifier for layout-type components
   template?: string;
+  // optional number of grid columns for layout components
+  gridColumns?: number;
   // optional explicit icon key to force icon selection in UI
   icon?: string;
   pageId: string;

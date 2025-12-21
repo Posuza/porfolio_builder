@@ -83,18 +83,24 @@ export const LayoutManager: React.FC = () => {
       }
 
       let layoutStyles: any = {};
+      // gridCols controls default column count for the created layout
+      let gridCols: number | undefined = undefined;
       switch (norm) {
         case 'single-column':
           layoutStyles = {};
+          gridCols = undefined;
           break;
         case 'column-more':
           layoutStyles = { display: 'grid', gridTemplateColumns: `repeat(2, 1fr)`, gap: baseSettings.gap };
+          gridCols = 2;
           break;
         case 'grid':
           layoutStyles = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: baseSettings.gap };
+          gridCols = 3;
           break;
         case 'uneven-grid':
           layoutStyles = { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: baseSettings.gap };
+          gridCols = undefined;
           break;
         default:
           layoutStyles = {};
@@ -110,6 +116,7 @@ export const LayoutManager: React.FC = () => {
         // also store an explicit icon key so StructureView can't pick a random icon
         icon: norm,
         styles: { ...baseSettings, ...layoutStyles },
+        gridColumns: gridCols,
         position: { x: 0, y: 0 },
         pageId: currentPageId,
       });

@@ -44,19 +44,19 @@ const StructureView: React.FC = () => {
       <div key={comp.id} className="mb-1">
         <div
           onClick={(e) => { e.stopPropagation(); selectComponent(comp.id); }}
-          className={`flex items-center cursor-pointer p-1 rounded ${selectedComponent === comp.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'}`}
+          className={`flex items-center cursor-pointer p-0.5 rounded ${selectedComponent === comp.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'}`}
           style={{ paddingLeft: 8 + depth * 12 }}
         >
           {children.length > 0 ? (
             <button
               onClick={(e) => { e.stopPropagation(); setCollapsed(prev => ({ ...prev, [comp.id]: !prev[comp.id] })); }}
-              className="text-[10px] w-4 h-4 flex items-center justify-center mr-1"
+              className="text-[10px] w-4 h-4 flex items-center justify-center mr-0.5"
               aria-label="toggle"
             >
               {isCollapsed ? '+' : '−'}
             </button>
           ) : (
-            <span className="w-4 h-4 inline-block mr-1" />
+            <span className="w-4 h-4 inline-block mr-0.5" />
           )}
 
           <span className="flex items-center gap-2">
