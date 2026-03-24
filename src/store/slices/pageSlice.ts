@@ -34,7 +34,7 @@ export const createPageSlice: StateCreator<PageSlice> = (set, get) => ({
   
   addPage: (name, layoutId) => {
     const newPage: Page = {
-      id: Date.now().toString(),
+      id: typeof crypto !== 'undefined' ? crypto.randomUUID() : Date.now().toString(),
       name,
       slug: name.toLowerCase().replace(/\s+/g, '-'),
       isActive: true,

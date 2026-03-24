@@ -165,14 +165,85 @@ export const PropertyPanel: React.FC = () => {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-2 text-sm text-gray-600">Font Size</label>
+            <label className="block mb-2 text-sm text-gray-600">
+              Font Size: {parseInt(component.styles?.fontSize?.toString?.() || '16')}px
+            </label>
             <input
               type="range"
               min="12"
-              max="48"
+              max="72"
               value={parseInt(component.styles?.fontSize?.toString?.() || '16')}
               onChange={(e) => handleStyleChange('fontSize', `${e.target.value}px`)}
               className="w-full"
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="block mb-2 text-sm text-gray-600">Font Family</label>
+            <select
+              value={(component.styles as any)?.fontFamily || ''}
+              onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
+              className="w-full p-2 border rounded text-sm"
+            >
+              <option value="">Default</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'Times New Roman', Times, serif">Times New Roman</option>
+              <option value="'Courier New', Courier, monospace">Courier New</option>
+              <option value="Verdana, sans-serif">Verdana</option>
+              <option value="Trebuchet MS, sans-serif">Trebuchet MS</option>
+              <option value="Impact, Charcoal, sans-serif">Impact</option>
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="block mb-2 text-sm text-gray-600">Font Weight</label>
+            <select
+              value={(component.styles as any)?.fontWeight || ''}
+              onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+              className="w-full p-2 border rounded text-sm"
+            >
+              <option value="">Default</option>
+              <option value="300">Light (300)</option>
+              <option value="400">Normal (400)</option>
+              <option value="500">Medium (500)</option>
+              <option value="600">Semi-Bold (600)</option>
+              <option value="700">Bold (700)</option>
+              <option value="800">Extra Bold (800)</option>
+              <option value="900">Black (900)</option>
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="block mb-2 text-sm text-gray-600">Text Alignment</label>
+            <div className="flex gap-1">
+              {(['left', 'center', 'right', 'justify'] as const).map((align) => (
+                <button
+                  key={align}
+                  onClick={() => handleStyleChange('textAlign', align)}
+                  className={`flex-1 py-1 rounded border text-xs capitalize ${
+                    component.styles?.textAlign === align
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {align}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label className="block mb-2 text-sm text-gray-600">Border Radius (px)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={(component.styles as any)?.borderRadius?.toString?.().replace('px', '') || ''}
+              onChange={(e) => handleStyleChange('borderRadius', e.target.value ? `${e.target.value}px` : '')}
+              className="w-full p-2 border rounded"
+              placeholder="0"
             />
           </div>
         </>

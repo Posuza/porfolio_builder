@@ -45,7 +45,7 @@ export const createLayoutSlice: StateCreator<LayoutSlice> = (set, get) => ({
   addLayout: (layout) => {
     const newLayout: Layout = {
       ...layout,
-      id: Date.now().toString(),
+      id: typeof crypto !== 'undefined' ? crypto.randomUUID() : Date.now().toString(),
     };
     set((state) => ({
       layouts: [...state.layouts, newLayout],

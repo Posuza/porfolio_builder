@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePortfolioStore } from '../../store/store';
 import { useDrag } from 'react-dnd';
 import { FiType, FiFileText, FiImage, FiSquare, FiCreditCard, FiList, FiMessageSquare, FiMinus } from 'react-icons/fi';
 
 export const ComponentPalette: React.FC = () => {
   const { addComponent, currentPageId, getComponentsByPage } = usePortfolioStore();
+  const [noLayoutWarning, setNoLayoutWarning] = useState(false);
 
   const componentTypes = [
     { type: 'header' as const, label: 'Header', Icon: FiType, defaultContent: 'Your Header' },
@@ -26,11 +27,11 @@ export const ComponentPalette: React.FC = () => {
     // allow adding into either legacy `section` nodes or the newer `layout` containers
     const sections = currentPageId ? (getComponentsByPage(currentPageId) || []).filter((c: any) => c.type === 'section' || c.type === 'layout') : [];
     if (sections.length === 0) {
-      // user must create a layout/section first
-      // Keep feedback minimal — the editor UI can be enhanced later.
-      alert('Create a layout (drop a layout template) or add a section before adding components.');
+      setNoLayoutWarning(true);
+      setTimeout(() => setNoLayoutWarning(false), 3500);
       return;
     }
+    setNoLayoutWarning(false);
 
     const parentSection = sections[0];
     addComponent({
@@ -86,6 +87,11 @@ export const ComponentPalette: React.FC = () => {
   return (
     <div className="p-4 bg-gray-100 rounded-md">
       <h3 className="mb-4 text-gray-800">Components</h3>
+      {noLayoutWarning && (
+        <div className="mb-3 p-2 rounded bg-amber-100 border border-amber-400 text-amber-800 text-xs">
+          Add a layout template first, then drop components into it.
+        </div>
+      )}
       
       <div className="mb-4">
         <h4 className="mb-2 text-sm text-gray-600">Basic</h4>
