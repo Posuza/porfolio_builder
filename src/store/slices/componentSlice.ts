@@ -40,21 +40,26 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   selectedComponent: null,
   
   addComponent: (component) => {
+    // push history snapshot before mutation
+    const store = get() as any;
+    if (typeof store.pushHistory === 'function') store.pushHistory();
+
     const newComponent: Component = {
       ...component,
-      id: (component as any).id || Date.now().toString(),
+      id: (component as any).id || (typeof crypto !== 'undefined' ? crypto.randomUUID() : Date.now().toString()),
     };
-    // Debug: log layout creations to help trace drag/drop vs click flows
-    if (newComponent.type === 'layout') {
-      // eslint-disable-next-line no-console
-      console.info('[store] addComponent (layout):', JSON.parse(JSON.stringify(newComponent)));
-    }
     set((state) => ({
       components: [...state.components, newComponent],
     }));
   },
   
   updateComponent: (id, updates) => {
+    // push history snapshot before mutation (skip icon-backfill updates to avoid polluting undo stack)
+    const onlyIcon = Object.keys(updates).length === 1 && 'icon' in updates;
+    if (!onlyIcon) {
+      const store = get() as any;
+      if (typeof store.pushHistory === 'function') store.pushHistory();
+    }
     set((state) => ({
       components: state.components.map((comp) =>
         comp.id === id ? { ...comp, ...updates } : comp
@@ -63,6 +68,10 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   },
   
   deleteComponent: (id) => {
+    // push history snapshot before mutation
+    const store = get() as any;
+    if (typeof store.pushHistory === 'function') store.pushHistory();
+
     set((state) => {
       // remove the target component and any descendants (by parentId) recursively
       const toRemove = new Set<string>([id]);
@@ -101,6 +110,10 @@ export const createComponentSlice: StateCreator<ComponentSlice> = (set, get) => 
   },
   
   reorderComponents: (dragIndex, hoverIndex) => {
+    // push history snapshot before mutation
+    const store = get() as any;
+    if (typeof store.pushHistory === 'function') store.pushHistory();
+
     const { components } = get();
     // guard against invalid indices or missing dragged item
     if (!Array.isArray(components)) return;

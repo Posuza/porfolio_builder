@@ -7,16 +7,36 @@ import { AdvancedControls } from '../components/engine/AdvancedControls';
 import { Canvas } from '../components/engine/Canvas';
 import { PropertyPanel } from '../components/engine/PropertyPanel';
 import StructureView from '../components/engine/StructureView';
+import { PageManager } from '../components/engine/PageManager';
 import { usePortfolioStore } from '../store/store';
 
 export const BuilderPage: React.FC = () => {
   const { setCurrentPage, getCurrentLayout } = usePortfolioStore();
   const { components, updateComponent } = usePortfolioStore();
+  const { undo, redo, canUndo, canRedo } = usePortfolioStore();
   const { pageId } = useParams<{ pageId?: string }>();
 
   useEffect(() => {
     if (pageId) setCurrentPage(pageId);
   }, [pageId, setCurrentPage]);
+
+  // Keyboard shortcuts: Ctrl+Z = undo, Ctrl+Y / Ctrl+Shift+Z = redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't intercept when user is typing in an input/textarea
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (canUndo()) undo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        if (canRedo()) redo();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, canUndo, canRedo]);
 
   // Backfill `icon` field for existing components to ensure deterministic icons
   useEffect(() => {
@@ -48,9 +68,15 @@ export const BuilderPage: React.FC = () => {
       </aside>
 
       {/* Main Canvas Area */}
-      <main className="flex-1 p-4 overflow-auto">
-        <div style={layoutStyle}>
-          <Canvas />
+      <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Page tabs bar */}
+        <div className="px-4 pt-3 pb-2 bg-white border-b shrink-0">
+          <PageManager />
+        </div>
+        <div className="flex-1 p-4 overflow-auto">
+          <div style={layoutStyle}>
+            <Canvas />
+          </div>
         </div>
       </main>
 
