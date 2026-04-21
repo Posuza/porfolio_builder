@@ -2,15 +2,21 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { usePortfolioStore } from '../../store/store';
 import DraggableItem from './DraggableItem';
+import {
+  getResolvedLayoutSettings,
+  normalizeLayoutTemplate,
+  resolveLayoutComponentStyles,
+} from '../../utils/layout';
 
 export const Canvas: React.FC = () => {
   const { components } = usePortfolioStore();
   const { getCurrentLayout } = usePortfolioStore();
   const layout = getCurrentLayout?.();
+  const resolvedLayout = getResolvedLayoutSettings(layout?.settings);
 
-  const borderColor = layout?.settings?.accentColor || '#e5e7eb';
-  const bg = layout?.settings?.surfaceColor || layout?.settings?.backgroundColor || '#f8fafc';
-  const textColor = layout?.settings?.textColor || '#111827';
+  const borderColor = resolvedLayout.accentColor;
+  const bg = resolvedLayout.surfaceColor;
+  const textColor = resolvedLayout.textColor;
 
   // zoom / scale helpers to prevent content overflow on the canvas
   const outerRef = useRef<HTMLDivElement | null>(null);
@@ -106,12 +112,13 @@ export const Canvas: React.FC = () => {
   useEffect(() => {
     if (typeof ResizeObserver === 'undefined') return;
     let obs: ResizeObserver | null = null;
-    if (innerRef.current) {
+    const observedEl = innerRef.current;
+    if (observedEl) {
       obs = new ResizeObserver(() => scheduleFit(60));
-      obs.observe(innerRef.current);
+      obs.observe(observedEl);
     }
     return () => {
-      if (obs && innerRef.current) obs.unobserve(innerRef.current);
+      if (obs && observedEl) obs.unobserve(observedEl);
       obs = null;
     };
     // intentionally track only the ref target; do not add scheduleFit to deps
@@ -213,34 +220,18 @@ export const Canvas: React.FC = () => {
 
       const t = monitor.getItemType();
       if (t === 'new-layout') {
-        const template = item.template;
-        const baseStyles: any = { padding: '20px', backgroundColor: 'transparent', color: '#111827' };
-        let styles: any = {};
-        let norm = template;
-        if (template === 'verticle-column' || template === 'verticle_column' || template === 'vertical-column') norm = 'single-column';
-        if (template === 'horizontal_columns' || template === 'horizontal-columns' || template === 'column-more' || template === 'column_more') norm = 'column-more';
-
-        let gridCols: number | undefined = undefined;
-        switch (norm) {
-          case 'single-column':
-            styles = {};
-            gridCols = undefined;
-            break;
-          case 'column-more':
-            styles = { display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' };
-            gridCols = 2;
-            break;
-          case 'grid':
-            styles = { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' };
-            gridCols = 3;
-            break;
-          case 'uneven-grid':
-            styles = { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' };
-            gridCols = undefined;
-            break;
-          default:
-            styles = {};
-        }
+        const norm = normalizeLayoutTemplate(item.template);
+        const baseStyles: any = {
+          padding: resolvedLayout.padding,
+          backgroundColor: 'transparent',
+          color: resolvedLayout.textColor,
+          gap: resolvedLayout.gap,
+        };
+        const styles = resolveLayoutComponentStyles(
+          { template: norm, styles: baseStyles },
+          layout?.settings,
+        );
+        const gridCols = norm === 'column-more' ? 2 : norm === 'grid' ? 3 : undefined;
 
         const layoutId = Date.now().toString();
         setTimeout(() => {
@@ -252,7 +243,7 @@ export const Canvas: React.FC = () => {
             content: '',
             template: norm,
             icon: norm,
-            styles: { ...baseStyles, ...styles, border: `1px dashed ${borderColor}` },
+            styles: { ...styles, border: `1px dashed ${borderColor}` },
             gridColumns: gridCols,
             position: { x: 0, y: 0 },
             pageId,
@@ -299,34 +290,18 @@ export const Canvas: React.FC = () => {
 
         if (t === 'new-layout') {
           if (!component || !component.id) return { handled: false };
-          const template = item.template;
-          const baseStyles: any = { padding: component.styles?.padding || '20px', backgroundColor: 'transparent', color: component.styles?.color || '#111827' };
-          let styles: any = {};
-          let norm = template;
-          if (template === 'verticle-column' || template === 'verticle_column' || template === 'vertical-column') norm = 'single-column';
-          if (template === 'horizontal_columns' || template === 'horizontal-columns' || template === 'column-more' || template === 'column_more') norm = 'column-more';
-
-          let gridCols: number | undefined = undefined;
-          switch (norm) {
-            case 'single-column':
-              styles = {};
-              gridCols = undefined;
-              break;
-            case 'column-more':
-              styles = { display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '16px' };
-              gridCols = 2;
-              break;
-            case 'grid':
-              styles = { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '16px' };
-              gridCols = 3;
-              break;
-            case 'uneven-grid':
-              styles = { display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' };
-              gridCols = undefined;
-              break;
-            default:
-              styles = {};
-          }
+          const norm = normalizeLayoutTemplate(item.template);
+          const baseStyles: any = {
+            padding: component.styles?.padding || resolvedLayout.padding,
+            backgroundColor: 'transparent',
+            color: component.styles?.color || resolvedLayout.textColor,
+            gap: component.styles?.gap || resolvedLayout.gap,
+          };
+          const styles = resolveLayoutComponentStyles(
+            { template: norm, styles: baseStyles },
+            layout?.settings,
+          );
+          const gridCols = norm === 'column-more' ? 2 : norm === 'grid' ? 3 : undefined;
 
           const layoutId = Date.now().toString();
           setTimeout(() => {
@@ -337,7 +312,7 @@ export const Canvas: React.FC = () => {
               content: '',
               template: norm,
               icon: norm,
-              styles: { ...baseStyles, ...styles, border: `1px dashed ${borderColor}` },
+              styles: { ...styles, border: `1px dashed ${borderColor}` },
               gridColumns: gridCols,
               position: { x: 0, y: 0 },
               parentId: component.id,
@@ -354,17 +329,8 @@ export const Canvas: React.FC = () => {
     }), []);
 
     const isSelected = selectedComponent === component.id;
-    // compute template-driven display to avoid user-supplied styles overriding layout behavior
-    const templateKey = (component.template || component.icon || '').toString().toLowerCase();
-    const applyGrid = /\bgrid\b/.test(templateKey) || templateKey === 'uneven-grid';
-    const applyFlex = ['horizontal_columns','horizontal_more','horizontal-columns','column-more','column_more','columns'].some(k => templateKey.includes(k)) || /\bhorizontal\b/.test(templateKey);
-    const computedDisplay = applyGrid ? 'grid' : (applyFlex ? 'flex' : 'block');
-
     const appliedStyles = {
-      ...(component.styles || {}),
-      display: computedDisplay,
-      gridTemplateColumns: applyGrid ? (templateKey === 'uneven-grid' ? '2fr 1fr' : 'repeat(3,1fr)') : undefined,
-      gap: component.styles?.gap || layout?.settings?.gap || undefined,
+      ...resolveLayoutComponentStyles(component, layout?.settings),
       transition: 'box-shadow 150ms, transform 150ms',
     } as React.CSSProperties;
 
@@ -426,11 +392,11 @@ export const Canvas: React.FC = () => {
       <h3 className="text-center mb-4" style={{ color: textColor }}>Portfolio Canvas</h3>
       {topLevel.length === 0 ? (
         <div className="mx-auto max-w-xl text-center p-6">
-          <div style={{ border: `1px solid ${borderColor}`, borderRadius: 8, padding: 16, background: layout?.settings?.backgroundColor || '#ffffff' }}>
+          <div style={{ border: `1px solid ${borderColor}`, borderRadius: 8, padding: 16, background: resolvedLayout.backgroundColor }}>
             <h4 style={{ margin: 0, color: textColor }}>Sample Heading</h4>
             <p style={{ color: textColor, marginTop: 8 }}>This is a sample text block that follows the selected theme's text and background colors.</p>
             <div style={{ marginTop: 12 }}>
-              <button style={{ background: layout?.settings?.accentColor || '#3b82f6', color: '#fff', padding: '8px 12px', borderRadius: 6, border: 'none' }}>Primary Action</button>
+              <button style={{ background: resolvedLayout.accentColor, color: '#fff', padding: '8px 12px', borderRadius: 6, border: 'none' }}>Primary Action</button>
             </div>
           </div>
           <div className="text-gray-500 mt-4">Add components to build your portfolio</div>

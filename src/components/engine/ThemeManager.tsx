@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { usePortfolioStore } from "../../store/store";
 import { FaPlus, FaCheck, FaRedo } from "react-icons/fa";
-import { FaCaretUp,FaCaretDown } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 
 export const ThemeManager: React.FC = () => {
@@ -9,7 +8,6 @@ export const ThemeManager: React.FC = () => {
     usePortfolioStore();
   const currentLayout = getCurrentLayout();
   const [customOpen, setCustomOpen] = useState(false);
-  const [formCollapse, setFormCollapse] = useState(false);
 
   const initialThemes = [
     {
@@ -115,47 +113,25 @@ export const ThemeManager: React.FC = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100 rounded-md mb-4">
-      <div className="flex felx-row justify-between">
-        <div className="flex felx-row">
-          <h3 className="mb-2 text-gray-800">Themes</h3>
-          <button
-            onClick={() => setThemes(initialThemes)}
-            title="Reset themes"
-            aria-label="Reset themes to defaults"
-            className="w-6 h-6 flex items-center justify-center borde text-sky-600 rounded"
-          >
-            {React.createElement(
-              FaRedo as unknown as React.ComponentType<{ size?: number }>,
-              { size: 14 }
-            )}
-          </button>
-        </div>
+    <div>
+      <div className="flex flex-col md:flex-row items-center justify-between mb-2">
+        <div className="text-[8px] md:text-xs text-gray-500">Pick a palette or build your own.</div>
         <button
-          onClick={() => setFormCollapse(!formCollapse)}
-          title="Toggle collapse"
-          aria-label="Toggle collapse"
-          className="w-6 h-6 flex items-center justify-center text-sky-600"
+          onClick={() => setThemes(initialThemes)}
+          title="Reset themes"
+          aria-label="Reset themes to defaults"
+          className="w-4 md:w-6  h-4 md:h-6 flex items-center justify-center text-sky-600 rounded"
         >
-          {formCollapse ? (
-            React.createElement(
-              FaCaretUp as unknown as React.ComponentType<{ size?: number }>,
-              { size: 20 }
-            )
-          ) : (
-            React.createElement(
-              FaCaretDown as unknown as React.ComponentType<{ size?: number }>,
-              { size: 20 }
-            )
+          {React.createElement(
+            FaRedo as unknown as React.ComponentType<{ size?: number }>,
+            { size: 14 }
           )}
         </button>
       </div>
 
-      {!formCollapse && (
-        <>
-          <div className="grid grid-cols-2 gap-2">
-            {themes.map((theme) => (
-          <div className=" relative bg-gray-200" key={theme.name}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 md:gap-2">
+        {themes.map((theme) => (
+          <div className="relative bg-gray-100 rounded" key={theme.name}>
             <button
               onClick={() => {
                 // allow deleting any theme (built-ins included)
@@ -163,7 +139,7 @@ export const ThemeManager: React.FC = () => {
               }}
               aria-label={`Delete theme ${theme.name}`}
               title={`Delete ${theme.name}`}
-              className="absolute right-0.5 top-0.5 p-[1px] rounded hover:bg-gray-400 bg-gray-300"
+              className="absolute right-0.5 top-0.5 p-[1px] rounded hover:bg-gray-300 bg-gray-200"
               style={{ lineHeight: 0 }}
             >
               {React.createElement(
@@ -176,20 +152,18 @@ export const ThemeManager: React.FC = () => {
             </button>
             <button
               onClick={() => applyTheme(theme)}
-              className="p-2 w-full border rounded text-sm flex items-center justify-center min-h-[40px] flex flex-col"
+              className="p-0.5 md:p-2 w-full border rounded flex items-center justify-center min-h-[40px] flex flex-col"
               style={{
                 backgroundColor: theme.colors.background,
                 color: theme.colors.text,
               }}
             >
-              <span className="ml-2">{theme.name}</span>
-              <div className="flex items-center gap-2">
+              <span className="text-[9px] md:text-sm w-full break-words whitespace-normal text-center">{theme.name}</span>
+              <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-[1px] md:gap-1">
                 <div
+                  className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0 rounded-sm"
                   style={{
-                    width: 14,
-                    height: 14,
                     background: theme.colors.background,
-                    borderRadius: 3,
                     border: `1px solid ${borderFor(
                       theme.colors.background,
                       theme.colors.background,
@@ -198,11 +172,9 @@ export const ThemeManager: React.FC = () => {
                   }}
                 />
                 <div
+                  className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0 rounded-sm"
                   style={{
-                    width: 14,
-                    height: 14,
                     background: theme.colors.surface,
-                    borderRadius: 3,
                     border: `1px solid ${borderFor(
                       theme.colors.surface,
                       theme.colors.background,
@@ -211,11 +183,9 @@ export const ThemeManager: React.FC = () => {
                   }}
                 />
                 <div
+                  className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0 rounded-sm"
                   style={{
-                    width: 14,
-                    height: 14,
                     background: theme.colors.text,
-                    borderRadius: 3,
                     border: `1px solid ${borderFor(
                       theme.colors.text,
                       theme.colors.background,
@@ -224,11 +194,9 @@ export const ThemeManager: React.FC = () => {
                   }}
                 />
                 <div
+                  className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 shrink-0 rounded-sm"
                   style={{
-                    width: 14,
-                    height: 14,
                     background: theme.colors.accent,
-                    borderRadius: 3,
                     border: `1px solid ${borderFor(
                       theme.colors.accent,
                       theme.colors.background,
@@ -239,40 +207,38 @@ export const ThemeManager: React.FC = () => {
               </div>
             </button>
           </div>
-            ))}
+        ))}
 
-            {!customOpen && (
-              <button
-                onClick={() => setCustomOpen(true)}
-                title="Custom colors"
-                className="col-span-2 flex flex-col w-full py-2 items-center justify-center border rounded text-sm cursor-pointer"
-              >
-                {React.createElement(
-                  FaPlus as unknown as React.ComponentType<{
-                    size?: number;
-                    className?: string;
-                  }>,
-                  { size: 16 }
-                )}
-                <div className="text-sm text-gray-600">Custom colors</div>
-              </button>
+        {!customOpen && (
+          <button
+            onClick={() => setCustomOpen(true)}
+            title="Custom colors"
+            className=" flex flex-col w-full py-1 md:py-2 items-center justify-center border rounded  cursor-pointer"
+          >
+            {React.createElement(
+              FaPlus as unknown as React.ComponentType<{
+                size?: number;
+                className?: string;
+              }>,
+              { size: 16 }
             )}
-          </div>
+            <div className="text-[9px] md:text-xs text-gray-600">Custom colors</div>
+          </button>
+        )}
+      </div>
 
-          {/* Custom color form (controlled by outer + button) */}
-          <div className="mt-3">
-            <CustomColorForm
-              currentLayout={currentLayout}
-              open={customOpen}
-              setOpen={setCustomOpen}
-              existingNames={themes.map((t) => t.name)}
-              onSaveTheme={(themeEntry: any) =>
-                setThemes((prev) => [...prev, themeEntry])
-              }
-            />
-          </div>
-        </>
-      )}
+      {/* Custom color form (controlled by outer + button) */}
+      <div className="mt-3">
+        <CustomColorForm
+          currentLayout={currentLayout}
+          open={customOpen}
+          setOpen={setCustomOpen}
+          existingNames={themes.map((t) => t.name)}
+          onSaveTheme={(themeEntry: any) =>
+            setThemes((prev) => [...prev, themeEntry])
+          }
+        />
+      </div>
     </div>
   );
 };
@@ -349,8 +315,8 @@ const CustomColorForm: React.FC<{
               }>,
               { size: 16 }
             )}
+       
           </button>
-          <div className="mb-2 text-sm font-medium">Custom colors</div>
 
           <div className="flex flex-col">
             <div className="md:col-span-1">

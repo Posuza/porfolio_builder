@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { usePortfolioStore } from '../../store/store';
+import {
+  getPageShellStyle,
+  getResolvedLayoutSettings,
+  resolveLayoutComponentStyles,
+} from '../../utils/layout';
 
 type Viewport = 'desktop' | 'tablet' | 'mobile';
 
@@ -18,13 +23,11 @@ const VIEWPORT_LABELS: Record<Viewport, string> = {
 export const PreviewMode: React.FC = () => {
   const { components, getCurrentLayout, currentPageId, getComponentsByPage } = usePortfolioStore();
   const layout = getCurrentLayout();
+  const resolvedLayout = getResolvedLayoutSettings(layout?.settings);
   const [viewport, setViewport] = useState<Viewport>('desktop');
 
   const containerStyle: React.CSSProperties = {
-    maxWidth: layout?.settings.maxWidth || '1200px',
-    margin: '0 auto',
-    padding: layout?.settings.padding || '20px',
-    backgroundColor: layout?.settings.backgroundColor || 'white',
+    ...getPageShellStyle(layout?.settings),
     minHeight: '100vh',
     fontFamily: 'Arial, sans-serif',
   };
@@ -39,52 +42,12 @@ export const PreviewMode: React.FC = () => {
     const children = (pageComponents || []).filter((c: any) => c.parentId === component.id);
 
     if (component.type === 'layout') {
-      const template = (component.template || component.icon || '').toString().toLowerCase();
-
-      const horizontalKeys = [
-        'horizontal_columns',
-        'horizontal_more',
-        'horizontal-columns',
-        'column-more',
-        'column_more',
-        'columns',
-        'two-column',
-        'two_columns',
-        'three-column',
-        'three_columns',
-      ];
-      const verticalKeys = [
-        'verticle-column',
-        'verticle_column',
-        'vertical-column',
-        'vertical_column',
-        'single_column',
-        'single-column',
-      ];
-
-      const isGrid = /\bgrid\b/.test(template);
-      const isHorizontal = horizontalKeys.some((k) => template.includes(k)) || /\bhorizontal\b/.test(template);
-      const isVertical = verticalKeys.some((k) => template.includes(k)) || /\b(vertical|single|verticle)\b/.test(template);
-
-      const layoutGap = component.styles?.gap || layout?.settings?.gap || '16px';
-
-      let display: React.CSSProperties['display'] = 'block';
-      if (isGrid) display = 'grid';
-      else if (isHorizontal) display = 'flex';
-      else if (isVertical) display = 'block';
-
-      const layoutStyle: React.CSSProperties = {
-        ...(component.styles || {}),
-        display,
-        gap: layoutGap,
-        gridTemplateColumns: isGrid ? (template === 'uneven-grid' && children.length === 2 ? '2fr 1fr' : 'repeat(auto-fit,minmax(150px,1fr))') : undefined,
-        alignItems: isHorizontal ? 'stretch' : undefined,
-      };
+      const layoutStyle = resolveLayoutComponentStyles(component, layout?.settings);
 
       return (
         <div key={component.id} style={{ ...layoutStyle, marginBottom: '16px' }}>
           {children.map((ch: any) => (
-            <div key={ch.id} style={display === 'flex' ? { flex: 1 } : undefined}>
+            <div key={ch.id}>
               {renderNode(ch)}
             </div>
           ))}
@@ -110,13 +73,13 @@ export const PreviewMode: React.FC = () => {
       case 'section':
         return <section style={component.styles}>{component.content}</section>;
       case 'card':
-        return <div style={{ ...component.styles, border: `1px solid ${layout?.settings?.accentColor || '#ddd'}`, borderRadius: '8px', padding: '12px' }}>{component.content}</div>;
+        return <div style={{ ...component.styles, border: `1px solid ${resolvedLayout.accentColor}`, borderRadius: '8px', padding: '12px' }}>{component.content}</div>;
       case 'list':
         return <div style={component.styles}>{component.content}</div>;
       case 'quote':
         return <blockquote style={component.styles}>{component.content}</blockquote>;
       case 'divider':
-        return <hr style={{ ...component.styles, border: 'none', borderTop: `2px solid ${layout?.settings?.accentColor || '#ddd'}`, margin: '20px 0' }} />;
+        return <hr style={{ ...component.styles, border: 'none', borderTop: `2px solid ${resolvedLayout.accentColor}`, margin: '20px 0' }} />;
       default:
         return <div style={component.styles}>{component.content}</div>;
     }
@@ -170,9 +133,9 @@ export const PreviewMode: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div style={{ textAlign: 'center', color: '#666', padding: '60px 20px', fontSize: '18px' }}>
-                Your portfolio preview will appear here once you add components.
-              </div>
+                <div style={{ textAlign: 'center', color: resolvedLayout.textColor, padding: '60px 20px', fontSize: '18px' }}>
+                  Your portfolio preview will appear here once you add components.
+                </div>
             )}
           </div>
         </div>

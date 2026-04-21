@@ -1,11 +1,17 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { usePortfolioStore } from '../../store/store';
 import { useDrag } from 'react-dnd';
 import { FiType, FiFileText, FiImage, FiSquare, FiCreditCard, FiList, FiMessageSquare, FiMinus } from 'react-icons/fi';
 
-export const ComponentPalette: React.FC = () => {
-  const { addComponent, currentPageId, getComponentsByPage } = usePortfolioStore();
+type ComponentPaletteProps = {
+  onRequestLayout?: () => void;
+};
+
+export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onRequestLayout }) => {
+  const { addComponent, currentPageId, getComponentsByPage, components } = usePortfolioStore();
   const [noLayoutWarning, setNoLayoutWarning] = useState(false);
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<'all' | 'basic' | 'advanced'>('all');
 
   const componentTypes = [
     { type: 'header' as const, label: 'Header', Icon: FiType, defaultContent: 'Your Header' },
@@ -20,6 +26,17 @@ export const ComponentPalette: React.FC = () => {
     { type: 'quote' as const, label: 'Quote', Icon: FiMessageSquare, defaultContent: 'This is an inspiring quote.' },
     { type: 'divider' as const, label: 'Divider', Icon: FiMinus, defaultContent: '---' },
   ];
+
+  const pageComponents = useMemo(() => {
+    if (typeof getComponentsByPage === 'function' && currentPageId) {
+      return getComponentsByPage(currentPageId);
+    }
+    return components || [];
+  }, [getComponentsByPage, currentPageId, components]);
+
+  const hasLayout = useMemo(() => {
+    return (pageComponents || []).some((c: any) => c.type === 'section' || c.type === 'layout');
+  }, [pageComponents]);
 
   const handleAddComponent = (type: any, defaultContent: string) => {
     // Prevent adding components directly to the top-level canvas when there
@@ -68,48 +85,110 @@ export const ComponentPalette: React.FC = () => {
           textAlign: 'left',
         },
       },
+      canDrag: hasLayout,
       collect: (monitor) => ({ isDragging: monitor.isDragging() }),
-    }), [c]);
+    }), [c, hasLayout]);
+
+    const disabled = !hasLayout;
 
     return (
       <button
         ref={drag as any}
-        onClick={() => handleAddComponent(c.type, c.defaultContent)}
-        className="p-2 rounded-md border bg-white text-sm flex items-center gap-2"
+        onClick={() => {
+          if (disabled) {
+            setNoLayoutWarning(true);
+            onRequestLayout?.();
+            return;
+          }
+          handleAddComponent(c.type, c.defaultContent);
+        }}
+        disabled={disabled}
+        title={disabled ? 'Create a layout first' : c.label}
+        className={` p-1 md:p-2 rounded-[4px] rounded-md border text-sm flex items-center gap-2 ${
+          disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white hover:bg-gray-50'
+        }`}
         style={{ opacity: isDragging ? 0.5 : 1 }}
       >
         {c.Icon ? React.createElement(c.Icon, { className: 'w-4 h-4 text-gray-600' }) : <span>{c.icon}</span>}
-        <span>{c.label}</span>
+        <span className="hidden md:inline">{c.label}</span>
       </button>
     );
   };
 
+  const normalizedQuery = query.trim().toLowerCase();
+  const filterList = (list: any[]) =>
+    list.filter((c) => {
+      if (!normalizedQuery) return true;
+      return c.label.toLowerCase().includes(normalizedQuery) || c.type.toLowerCase().includes(normalizedQuery);
+    });
+
+  const basicList = category === 'advanced' ? [] : filterList(componentTypes);
+  const advancedList = category === 'basic' ? [] : filterList(advancedComponents);
+
   return (
-    <div className="p-4 bg-gray-100 rounded-md">
-      <h3 className="mb-4 text-gray-800">Components</h3>
+    <div>
+      <div className="mb-3">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search components..."
+          className="w-full px-2 py-1 text-xs md:text-sm border rounded"
+        />
+        <div className="mt-2 flex flex-wrap lg:flex-nowrap items-center gap-1 lg:gap-2">
+          {(['all', 'basic', 'advanced'] as const).map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={`text-[8px] md:text-xs px-1 md:px-2 py-[3px] md:py-1 rounded border capitalize shrink-0 ${
+                category === c ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {noLayoutWarning && (
-        <div className="mb-3 p-2 rounded bg-amber-100 border border-amber-400 text-amber-800 text-xs">
+        <div className="mb-3 p-2 rounded bg-amber-100 border border-amber-400 text-amber-800 text-[8px] md:text-xs">
           Add a layout template first, then drop components into it.
         </div>
       )}
-      
-      <div className="mb-4">
-        <h4 className="mb-2 text-sm text-gray-600">Basic</h4>
-        <div className="grid gap-2">
-          {componentTypes.map((c) => (
-            <PaletteButton key={c.type} c={c} />
-          ))}
+
+      {!hasLayout && (
+        <button
+          onClick={() => onRequestLayout?.()}
+          className="mb-3 w-full text-[8px] md:text-xs px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+        >
+          Create a layout to add components
+        </button>
+      )}
+
+      {basicList.length > 0 && (
+        <div className="mb-2 md:mb-4">
+          <h4 className="mb-2 text-[10px] md:text-xs font-bold text-gray-600">Basic</h4>
+          <div className="grid gap-0.5 md:gap-2">
+            {basicList.map((c) => (
+              <PaletteButton key={c.type} c={c} />
+            ))}
+          </div>
         </div>
-      </div>
-      
-      <div>
-        <h4 className="mb-2 text-sm text-gray-600">Advanced</h4>
-        <div className="grid gap-2">
-          {advancedComponents.map((c) => (
-            <PaletteButton key={c.type} c={c} />
-          ))}
+      )}
+
+      {advancedList.length > 0 && (
+        <div >
+          <h4 className="mb-2 text-[10px] md:text-xs font-bold text-gray-600">Advanced</h4>
+          <div className="grid gap-0.5 md:gap-2">
+            {advancedList.map((c) => (
+              <PaletteButton key={c.type} c={c} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {basicList.length === 0 && advancedList.length === 0 && (
+        <div className="text-[8px] md:text-xs text-gray-500">No components match your search.</div>
+      )}
     </div>
   );
 };

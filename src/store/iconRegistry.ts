@@ -1,4 +1,3 @@
-import React from 'react';
 import type { IconType } from 'react-icons';
 import { FiType, FiFileText, FiImage, FiSquare, FiCreditCard, FiList, FiMessageSquare, FiMinus } from 'react-icons/fi';
 import { TiThSmallOutline, TiThMenuOutline } from 'react-icons/ti';
